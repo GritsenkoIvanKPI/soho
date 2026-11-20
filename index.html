@@ -221,6 +221,7 @@ button{font:inherit;color:inherit;cursor:pointer}
 .car{position:relative}
 .car-track{--cw:clamp(270px,22vw,380px);display:flex;gap:var(--s5);overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;padding:48px calc(50vw - var(--cw) / 2) 56px}
 .car-track::-webkit-scrollbar{display:none}
+.car-track.jump .fcard,.car-track.jump .fcard p{transition:none}
 .fcard{position:relative;overflow:hidden;flex:0 0 var(--cw);scroll-snap-align:center;display:flex;flex-direction:column;align-items:center;text-align:center;border-radius:20px;background:var(--bg);color:var(--white);padding:var(--s5) var(--s5) var(--s6);min-height:clamp(420px,32vw,520px);
   box-shadow:0 2px 4px rgba(21,21,21,.05),0 26px 44px -26px var(--sh,rgba(21,21,21,.45));transform:scale(.94);transform-origin:50% 60%;transition:transform .6s var(--spring)}
 .fcard.on{transform:scale(1.04)}
@@ -480,27 +481,45 @@ button{font:inherit;color:inherit;cursor:pointer}
   const onScroll = () => nav.classList.toggle('scrolled', scrollY > 60);
   addEventListener('scroll', onScroll, { passive: true }); onScroll();
 
-  // flavour carousel: centre card = active, arrows, dots
-  const track = $('#carTrack'), cards = $$('.fcard', track), dots = $('#carDots');
-  dots.innerHTML = cards.map(c => `<button type="button" aria-label="Show ${c.querySelector('h3').textContent}"></button>`).join('');
+  // flavour carousel: endless loop. 3 copies of the set; we always settle in the middle copy
+  const track = $('#carTrack'), dots = $('#carDots');
+  const orig = $$('.fcard', track), N = orig.length;
+  const clone = c => { const k = c.cloneNode(true); k.setAttribute('aria-hidden', 'true'); k.tabIndex = -1; k.querySelector('img').loading = 'eager'; return k; };
+  orig.slice().reverse().forEach(c => track.prepend(clone(c)));
+  orig.forEach(c => track.append(clone(c)));
+  const cards = $$('.fcard', track);
+  dots.innerHTML = orig.map(c => `<button type="button" aria-label="Show ${c.querySelector('h3').textContent}"></button>`).join('');
   const dotBtns = $$('button', dots);
   const centerOf = c => c.offsetLeft - (track.clientWidth - c.offsetWidth) / 2;
+  const setW = () => cards[N].offsetLeft - cards[0].offsetLeft;
   let cur = -1;
-  const go = i => { const c = cards[Math.max(0, Math.min(cards.length - 1, i))]; track.scrollTo({ left: centerOf(c), behavior: reduce ? 'auto' : 'smooth' }); };
+  const go = i => track.scrollTo({ left: centerOf(cards[i]), behavior: reduce ? 'auto' : 'smooth' });
   const mark = () => {
     const mid = track.scrollLeft + track.clientWidth / 2;
     let best = 0, bd = Infinity;
     cards.forEach((c, i) => { const d = Math.abs(c.offsetLeft + c.offsetWidth / 2 - mid); if (d < bd) { bd = d; best = i; } });
     if (best === cur) return; cur = best;
     cards.forEach((c, i) => c.classList.toggle('on', i === best));
-    dotBtns.forEach((d, i) => d.setAttribute('aria-current', i === best));
+    dotBtns.forEach((d, i) => d.setAttribute('aria-current', i === best % N));
   };
-  let raf; track.addEventListener('scroll', () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(mark); }, { passive: true });
-  dotBtns.forEach((d, i) => d.addEventListener('click', () => go(i)));
+  // once scrolling stops on a copy, jump invisibly to the same card in the middle copy
+  const settle = () => {
+    if (cur >= N && cur < 2 * N) return;
+    const shift = cur < N ? setW() : -setW();
+    track.classList.add('jump');
+    track.scrollLeft += shift; cur = -1; mark();
+    requestAnimationFrame(() => requestAnimationFrame(() => track.classList.remove('jump')));
+  };
+  let raf, idle;
+  track.addEventListener('scroll', () => {
+    cancelAnimationFrame(raf); raf = requestAnimationFrame(mark);
+    clearTimeout(idle); idle = setTimeout(settle, 140);
+  }, { passive: true });
+  dotBtns.forEach((d, i) => d.addEventListener('click', () => go(N + i + (cur >= 2 * N ? N : cur < N ? -N : 0))));
   $('#carPrev').addEventListener('click', () => go(cur - 1));
   $('#carNext').addEventListener('click', () => go(cur + 1));
-  addEventListener('resize', () => { track.scrollLeft = centerOf(cards[Math.max(cur, 0)]); });
-  requestAnimationFrame(() => { track.scrollLeft = centerOf(cards[2]); mark(); });
+  addEventListener('resize', () => { track.scrollLeft = centerOf(cards[cur < 0 ? N + 2 : cur]); });
+  requestAnimationFrame(() => { track.scrollLeft = centerOf(cards[N + 2]); mark(); });
 
   // search + mobile menu
   const toggle = (btn, panel) => btn.addEventListener('click', () => { const open = panel.classList.toggle('open'); btn.setAttribute('aria-expanded', open); if (open && panel.id === 'searchBar') $('#q').focus(); });
