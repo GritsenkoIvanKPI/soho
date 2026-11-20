@@ -1,0 +1,510 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SohoPouch — Skip the can. Pop a pouch.</title>
+<meta name="description" content="Nicotine-free functional pouches: Caffeine for mornings, Electrolyte for training, Sleep for evenings. Zero sugar. Zero crash.">
+<link rel="icon" href="brand_assets/logo-dark.svg">
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,400;0,500;0,600;0,700;1,500&family=Barlow+Condensed:ital,wght@1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#f7f5ef; --card:#efece5; --white:#fff; --ink:#151515; --ink-2:#3a3833; --muted:#67635b; --line:#dcd8ce;
+  --caf:#ff5a1f; --caf-2:#ff8a3d; --caf-deep:#c63d0a;
+  --ele:#14d1bd; --ele-2:#7ff0e2; --ele-deep:#0a8a7d;
+  --slp:#7650ff; --slp-2:#a990ff; --slp-deep:#4a2bc4;
+  --sun:#ffd23f; --sky:#9fdcff; --pink:#ff8fb1;
+  --s1:4px; --s2:8px; --s3:12px; --s4:16px; --s5:24px; --s6:32px; --s7:48px; --s8:64px; --s9:96px; --s10:128px;
+  --r-sm:6px; --r:12px; --r-lg:20px;
+  --spring:cubic-bezier(.34,1.56,.64,1); --out:cubic-bezier(.16,1,.3,1);
+  --display:'Barlow Condensed', Impact, sans-serif; --sans:'Archivo', system-ui, sans-serif;
+  --hard:4px 4px 0 var(--ink);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.7;-webkit-font-smoothing:antialiased;overflow-x:clip}
+img{display:block;max-width:100%}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit;cursor:pointer}
+::selection{background:var(--sun);color:var(--ink)}
+:focus-visible{outline:3px solid var(--ink);outline-offset:3px;border-radius:4px}
+
+/* paper grain */
+.grain{position:fixed;inset:0;pointer-events:none;z-index:100;opacity:.06;mix-blend-mode:multiply;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+
+.wrap{width:100%;max-width:1320px;margin:0 auto;padding:0 var(--s4)}
+@media(min-width:768px){.wrap{padding:0 var(--s7)}}
+
+/* reveal */
+.rv{opacity:0;transform:translateY(32px);transition:opacity .8s var(--out),transform .8s var(--out)}
+.rv.in{opacity:1;transform:none}
+.rv[data-d="1"]{transition-delay:.08s}.rv[data-d="2"]{transition-delay:.16s}.rv[data-d="3"]{transition-delay:.24s}.rv[data-d="4"]{transition-delay:.32s}
+
+/* buttons — Grinds style: solid black, rounded, heavy condensed italic caps */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:var(--s3);height:56px;padding:0 var(--s7);border:0;border-radius:10px;background:var(--ink);color:var(--white);
+  font-family:var(--display);font-style:italic;font-weight:800;font-size:22px;letter-spacing:.01em;text-transform:uppercase;white-space:nowrap;
+  box-shadow:0 1px 0 rgba(255,255,255,.08) inset,0 14px 28px -14px rgba(21,21,21,.55);transition:transform .35s var(--spring),opacity .2s}
+.btn:hover{transform:translateY(-3px)}
+.btn:active{transform:translateY(1px) scale(.97)}
+.btn:focus-visible{outline:3px solid var(--ink);outline-offset:3px}
+.btn svg{transition:transform .35s var(--spring)}
+.btn:hover svg{transform:translateX(4px)}
+.btn-wide{min-width:min(350px,100%)}
+.btn-white{background:var(--white);color:var(--ink)}
+
+/* ===== announcement ticker ===== */
+.announce{position:relative;z-index:60;display:flex;overflow:hidden;height:42px;background:var(--slp);color:var(--white)}
+.ticker{display:flex;flex-shrink:0;align-items:center;gap:var(--s7);padding-right:var(--s7);animation:marquee 34s linear infinite}
+.announce:hover .ticker,.announce:focus-within .ticker{animation-play-state:paused}
+.tick{display:inline-flex;align-items:center;gap:var(--s7);white-space:nowrap;font-family:var(--display);font-style:italic;font-weight:700;font-size:17px;letter-spacing:.05em;text-transform:uppercase}
+.tick svg{flex:none;width:14px;height:14px}
+.tick a{text-decoration:underline;text-underline-offset:3px;transition:opacity .2s}
+.tick a:hover{opacity:.75}
+.tick a:active{opacity:.55}
+.tick a:focus-visible{outline:2px solid var(--white);outline-offset:3px}
+@media(max-width:640px){.tick{font-size:14px}}
+
+/* ===== nav ===== */
+.nav{position:sticky;top:0;z-index:50;background:var(--white)}
+.nav::after{content:"";position:absolute;left:0;right:0;bottom:0;height:3px;background:var(--ink);transform:scaleY(.34);transform-origin:bottom;transition:transform .3s var(--out)}
+.nav.scrolled::after{transform:scaleY(1)}
+.nav-inner{display:flex;align-items:center;gap:var(--s7);height:84px}
+.logo{display:block;width:104px;flex:none;transition:transform .45s var(--spring)}
+.logo:hover{transform:rotate(-5deg) scale(1.06)}
+.logo:active{transform:scale(.94)}
+.nav-links{display:none;align-items:center;gap:var(--s6);font-family:var(--display);font-size:14px;letter-spacing:.02em;text-transform:uppercase}
+@media(min-width:1024px){.nav-links{display:flex}}
+.nav-links > a,.nav-drop > button{position:relative;display:inline-flex;align-items:center;gap:6px;padding:var(--s2) 0;border:0;background:none;text-transform:uppercase}
+.nav-links > a::after,.nav-drop > button::after{content:"";position:absolute;left:0;right:0;bottom:2px;height:3px;background:var(--caf);transform:scaleX(0);transform-origin:left;transition:transform .4s var(--out)}
+.nav-links > a:hover::after,.nav-drop:hover > button::after,.nav-drop > button:focus-visible::after{transform:scaleX(1)}
+.nav-links > a:active,.nav-drop > button:active{transform:translateY(1px)}
+.nav-drop{position:relative}
+.nav-drop > button svg{transition:transform .4s var(--spring)}
+.nav-drop:hover > button svg,.nav-drop:focus-within > button svg{transform:rotate(180deg)}
+.drop{position:absolute;top:calc(100% + 14px);left:-16px;min-width:290px;padding:var(--s2);background:var(--white);border:2.5px solid var(--ink);border-radius:var(--r);box-shadow:var(--hard);opacity:0;transform:translateY(-8px);pointer-events:none;transition:opacity .25s var(--out),transform .4s var(--spring)}
+.drop::before{content:"";position:absolute;left:0;right:0;top:-18px;height:18px}
+.nav-drop:hover .drop,.nav-drop:focus-within .drop{opacity:1;transform:none;pointer-events:auto}
+.drop a{display:flex;align-items:center;gap:var(--s3);padding:10px var(--s3);border-radius:var(--r-sm);font-family:var(--sans);font-weight:700;font-size:14px;text-transform:none;letter-spacing:0;transition:transform .35s var(--spring)}
+.drop a:hover{background:var(--paper);transform:translateX(4px)}
+.drop a:active{transform:scale(.98)}
+.drop a i{width:14px;height:14px;border-radius:50%;border:2px solid var(--ink);flex:none}
+.drop a small{margin-left:auto;color:var(--muted);font-weight:500;font-size:12px}
+.nav-right{margin-left:auto;display:flex;align-items:center;gap:var(--s1)}
+.icon-btn{position:relative;width:44px;height:44px;display:grid;place-items:center;border:0;background:none;border-radius:50%;transition:transform .35s var(--spring)}
+.icon-btn:hover{transform:translateY(-2px) scale(1.08)}
+.icon-btn:active{transform:scale(.88)}
+.cart-count{position:absolute;top:3px;right:1px;min-width:19px;height:19px;padding:0 4px;border-radius:999px;background:var(--caf);color:var(--white);border:2px solid var(--white);font-size:10px;font-weight:800;display:grid;place-items:center;transition:transform .45s var(--spring)}
+.cart-count.bump{transform:scale(1.5)}
+.menu-btn{display:grid}
+@media(min-width:1024px){.menu-btn{display:none}}
+.search-bar{position:absolute;left:0;right:0;top:100%;background:var(--white);border-bottom:3px solid var(--ink);padding:var(--s4) 0;opacity:0;transform:translateY(-10px);pointer-events:none;transition:opacity .25s,transform .4s var(--out)}
+.search-bar.open{opacity:1;transform:none;pointer-events:auto}
+.search-bar form{display:flex;gap:var(--s3)}
+.field{flex:1;min-width:0;height:54px;padding:0 var(--s4);border:2.5px solid var(--ink);border-radius:var(--r-sm);background:var(--white);font:inherit;font-size:16px;color:var(--ink);outline:none}
+.field:focus-visible{box-shadow:0 0 0 3px var(--sun)}
+.mnav{position:absolute;left:0;right:0;top:100%;background:var(--white);border-bottom:3px solid var(--ink);padding:var(--s3) var(--s4) var(--s5);display:grid;opacity:0;transform:translateY(-10px);pointer-events:none;transition:opacity .25s,transform .4s var(--out)}
+.mnav.open{opacity:1;transform:none;pointer-events:auto}
+.mnav a{padding:var(--s3) 0;border-bottom:1px solid var(--line);font-family:var(--display);font-size:18px;text-transform:uppercase;transition:transform .35s var(--spring)}
+.mnav a:hover{transform:translateX(6px)}
+.mnav a:active{transform:scale(.98)}
+@media(min-width:1024px){.mnav{display:none}}
+
+/* ===== hero (Grinds-style: full-bleed gradient, product right, copy left, on the 12-col grid) ===== */
+.hero{position:relative;overflow:hidden;isolation:isolate;color:var(--white);--hh:clamp(560px,min(calc(100svh - 126px),56vw),1000px);
+  background:#e8505b url("images/hero-tropic-1280.jpg") 18% 40%/cover no-repeat}
+@media(min-width:960px){.hero{height:var(--hh);container-type:size;background:#e8505b}}
+.hero::after{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(120% 90% at 50% 50%,transparent 60%,rgba(120,0,40,.18))}
+.hero-inner{position:relative;z-index:2;display:grid;grid-template-columns:repeat(12,minmax(0,1fr));column-gap:var(--s5);align-items:center}
+@media(min-width:960px){.hero-inner{height:var(--hh)}}
+.hero-inner{pointer-events:none}
+.hero-copy{grid-column:1/-1;position:relative;z-index:2;padding:var(--s8) 0 var(--s5);pointer-events:auto}
+@media(min-width:960px){.hero-copy{grid-column:1/6;padding:0}}
+.hero-badge{display:inline-flex;align-items:center;gap:var(--s4);margin-bottom:var(--s7);animation:fadeUp .9s var(--out) both}
+.hero-badge .seal{width:52px;height:52px;flex:none}
+.hero-badge .t1{font-weight:700;font-size:17px;line-height:1.1}
+.hero-badge .t1 small{display:block;font-weight:500;font-size:13px;opacity:.85;margin-top:2px}
+.hero-badge .sep{width:1.5px;height:44px;background:rgba(255,255,255,.6)}
+.hero-badge .t2{font-family:var(--display);font-weight:900;font-size:22px;letter-spacing:.06em;text-transform:uppercase}
+.hero h1{margin:0;font-family:var(--display);font-weight:900;text-transform:uppercase;font-size:clamp(56px,6.4vw,94px);line-height:.88;letter-spacing:-.01em;color:var(--white);text-shadow:0 3px 0 rgba(120,0,30,.14)}
+.hero h1 .ln{display:block;overflow:hidden;padding-top:.04em}
+.hero h1 .ln > span{display:inline-block;animation:lineUp 1s var(--out) both}
+.hero h1 .ln:nth-child(2) > span{animation-delay:.1s}.hero h1 .ln:nth-child(3) > span{animation-delay:.2s}
+@keyframes lineUp{from{transform:translateY(105%)}to{transform:none}}
+.hero-sub{max-width:460px;margin:var(--s5) 0 0;font-style:italic;font-weight:500;font-size:clamp(19px,1.75vw,26px);line-height:1.3;color:var(--white);animation:fadeUp .9s .3s var(--out) both}
+.hero-cta{display:flex;flex-wrap:wrap;align-items:center;gap:var(--s5);margin-top:var(--s7);animation:fadeUp .9s .4s var(--out) both}
+@keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+.hero-cta .btn{height:62px;padding:0 var(--s8);font-size:26px;box-shadow:0 18px 34px -14px rgba(60,0,20,.6)}
+.hero-cta .btn:focus-visible{outline-color:var(--white)}
+.hero-ranges{display:flex;flex-wrap:wrap;gap:var(--s2) var(--s4);font-family:var(--display);font-weight:800;font-size:20px;letter-spacing:.05em;text-transform:uppercase}
+.hero-ranges a{display:inline-flex;align-items:center;gap:6px;transition:transform .35s var(--spring)}
+.hero-ranges a i{width:10px;height:10px;border-radius:50%;border:2px solid var(--white)}
+.hero-ranges a:hover{transform:translateY(-2px)}
+.hero-ranges a:active{transform:scale(.96)}
+.hero-ranges a span{background:linear-gradient(currentColor,currentColor) 0 100%/0 2px no-repeat}
+.hero-ranges a:hover span{background-size:100% 2px}
+
+/* product art — full-bleed cover photo behind the whole hero; frame keeps the photo ratio so hotspots stay on the tins */
+.hero-art{position:relative;overflow:hidden;margin-top:calc(var(--s7) * -1)}
+.hero-art .frame{position:relative;aspect-ratio:5504/3072;width:175%;margin-left:-75%}
+.hero-art img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;-webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 18%);mask-image:linear-gradient(to bottom,transparent 0,#000 18%);animation:artIn 1.6s var(--out) both}
+@media(min-width:960px){
+  .hero-art{position:absolute;inset:0;margin:0}
+  .hero-art .frame{position:absolute;right:0;top:50%;width:max(100cqw,177.92cqh);margin:0;transform:translateY(-50%)}
+  .hero-art img{-webkit-mask-image:none;mask-image:none}
+}
+@keyframes artIn{from{opacity:0;transform:scale(1.06)}to{opacity:1;transform:none}}
+.hero-tone{position:absolute;inset:0;z-index:1;pointer-events:none;background:radial-gradient(60% 80% at 0% 40%,rgba(200,40,90,.45),transparent 70%);mix-blend-mode:multiply}
+.hero-ov{position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(180deg,rgba(60,10,35,.35),rgba(60,10,35,.1) 40%,rgba(60,10,35,.45))}
+@media(min-width:960px){.hero-ov{background:linear-gradient(90deg,rgba(70,12,40,.55) 0%,rgba(70,12,40,.28) 34%,transparent 56%),linear-gradient(to top,rgba(60,10,35,.35),transparent 25%)}}
+.hero-par{position:absolute;inset:0}
+/* hotspots over the three tins */
+.spot{position:absolute;transform:translate(-50%,-50%);border-radius:50%;--c:var(--caf);--dr:6%;--dt:4%;--ds:30px}
+.spot[data-k="caf"]{left:68.2%;top:44.5%;width:20%;aspect-ratio:1}
+.spot[data-k="ele"]{left:70.7%;top:74.5%;width:22%;aspect-ratio:2.3}
+.spot[data-k="slp"]{left:86.4%;top:56%;width:16%;aspect-ratio:1.4;--c:var(--slp)}
+.spot[data-k="ele"]{--c:var(--ele)}
+.spot-dot{position:absolute;right:var(--dr);top:var(--dt);width:var(--ds);height:var(--ds);border-radius:50%;background:var(--white);color:var(--ink);display:grid;place-items:center;box-shadow:0 6px 18px -4px rgba(80,0,30,.5);transition:transform .45s var(--spring)}
+.spot[data-k="ele"]{--dr:2%;--dt:-6%}
+.spot-dot::after{content:"";position:absolute;inset:0;border-radius:50%;border:2px solid var(--white);animation:ping 2.4s var(--out) infinite}
+.spot[data-k="ele"] .spot-dot::after{animation-delay:.8s}.spot[data-k="slp"] .spot-dot::after{animation-delay:1.6s}
+@keyframes ping{0%{transform:scale(1);opacity:.9}80%,100%{transform:scale(2.3);opacity:0}}
+/* label sits beside the marker, centred on it */
+.spot-tag{position:absolute;right:calc(var(--dr) + var(--ds) + 10px);top:calc(var(--dt) + var(--ds) / 2);display:inline-flex;align-items:center;gap:var(--s3);height:42px;padding:0 6px 0 16px;white-space:nowrap;line-height:1;border-radius:10px;background:var(--ink);color:var(--white);font-family:var(--display);font-weight:800;font-size:21px;letter-spacing:.01em;text-transform:uppercase;box-shadow:0 14px 30px -10px rgba(60,0,20,.6);opacity:0;transform:translate(10px,-50%);transition:opacity .25s var(--out),transform .45s var(--spring);pointer-events:none}
+.spot-tag b{display:block;font-weight:800;padding-top:1px}
+.spot-tag i{width:30px;height:30px;border-radius:7px;display:grid;place-items:center;background:var(--c);color:var(--ink);transition:transform .45s var(--spring)}
+.spot-tag svg{display:block}
+.spot[data-k="caf"] .spot-tag i,.spot[data-k="slp"] .spot-tag i{color:var(--white)}
+.spot:hover .spot-tag i{transform:translateX(2px)}
+.spot:hover .spot-tag,.spot:focus-visible .spot-tag{opacity:1;transform:translate(0,-50%)}
+.spot:hover .spot-dot,.spot:focus-visible .spot-dot{transform:rotate(90deg) scale(1.12)}
+.spot:active .spot-dot{transform:scale(.9)}
+.spot:focus-visible{outline:3px solid var(--white);outline-offset:4px}
+@media(max-width:959px){.spot{--ds:24px}.spot-tag{height:34px;font-size:16px;padding-left:12px}.spot-tag i{width:24px;height:24px}}
+
+/* statement box (ALP-style bordered strip) */
+.statement{background:var(--white);border-block:5px solid var(--ink);padding:var(--s5) var(--s4);text-align:center}
+.statement p{margin:0;font-family:var(--sans);font-weight:700;font-size:clamp(20px,2.3vw,34px);line-height:1.35;letter-spacing:-.01em}
+.statement p + p{font-weight:500;font-size:clamp(16px,1.6vw,24px);color:var(--ink-2)}
+
+/* ===== proof (Grinds-style section head + solid colour cards) ===== */
+.proof{background:#f2f1ef;padding:var(--s9) 0 var(--s9)}
+.sec-row{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:var(--s5);margin-bottom:var(--s7)}
+.sec-title{margin:0;font-family:var(--display);font-style:italic;font-weight:900;font-size:clamp(44px,4.6vw,68px);line-height:.92;letter-spacing:-.01em;text-transform:uppercase}
+.sec-sub{margin:var(--s3) 0 0;font-size:clamp(16px,1.3vw,19px);font-weight:500;color:var(--ink-2)}
+.proof-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:var(--s4)}
+@media(min-width:900px){.proof-grid{grid-template-columns:repeat(4,1fr);gap:var(--s5)}}
+.stat{position:relative;overflow:hidden;min-height:250px;padding:var(--s5);border-radius:18px;display:flex;flex-direction:column;color:var(--white);transition:transform .45s var(--spring)}
+.stat:hover{transform:translateY(-6px)}
+.stat:nth-child(1){background:#ff5a1f}
+.stat:nth-child(2){background:#0fb3a1}
+.stat:nth-child(3){background:#7650ff}
+.stat:nth-child(4){background:#f0a81a}
+.stat-tag{align-self:flex-start;display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 10px;border-radius:7px;background:var(--white);color:var(--ink);font-family:var(--display);font-style:italic;font-weight:800;font-size:15px;line-height:1;letter-spacing:.03em;text-transform:uppercase}
+.stat-tag svg{flex:none;width:14px;height:14px}
+.stat-num{margin-top:auto;font-family:var(--display);font-style:italic;font-weight:900;font-size:clamp(54px,5.4vw,84px);line-height:.9;letter-spacing:-.01em}
+.stat-label{margin-top:var(--s2);font-family:var(--display);font-style:italic;font-weight:700;font-size:20px;line-height:1.15;text-transform:uppercase;letter-spacing:.01em}
+.proof .btn{box-shadow:none}
+.stat-tag,.stat-num{white-space:nowrap}
+@media(max-width:600px){.stat{min-height:210px;padding:var(--s4)}.stat-tag{font-size:12.5px;padding:0 8px;gap:5px}.stat-tag svg{width:12px;height:12px}.stat-num{font-size:46px}.stat-label{font-size:16px}}
+.press{display:flex;overflow:hidden;margin-top:var(--s8);padding:var(--s5) 0;border-block:1px solid #dcdad5;-webkit-mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent)}
+.press-track{display:flex;gap:var(--s9);flex-shrink:0;padding-right:var(--s9);align-items:center;animation:marquee 32s linear infinite}
+@keyframes marquee{to{transform:translateX(-100%)}}
+.press-logo{font-family:var(--display);font-style:italic;font-weight:800;font-size:26px;text-transform:uppercase;color:#a29f98;white-space:nowrap}
+
+/* ===== block 4: pick your moment — Grinds-style flavour carousel ===== */
+.flavors{background:#f2f1ef;padding:var(--s9) 0 var(--s8);overflow:hidden}
+.flavors .sec-row{margin-bottom:var(--s5)}
+.car{position:relative}
+.car-track{--cw:clamp(270px,22vw,380px);display:flex;gap:var(--s5);overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;padding:48px calc(50vw - var(--cw) / 2) 56px}
+.car-track::-webkit-scrollbar{display:none}
+.fcard{position:relative;overflow:hidden;flex:0 0 var(--cw);scroll-snap-align:center;display:flex;flex-direction:column;align-items:center;text-align:center;border-radius:20px;background:var(--bg);color:var(--white);padding:var(--s5) var(--s5) var(--s6);min-height:clamp(420px,32vw,520px);
+  box-shadow:0 2px 4px rgba(21,21,21,.05),0 26px 44px -26px var(--sh,rgba(21,21,21,.45));transform:scale(.94);transform-origin:50% 60%;transition:transform .6s var(--spring)}
+.fcard.on{transform:scale(1.04)}
+.fcard:hover{transform:translateY(-6px) scale(.96)}
+.fcard.on:hover{transform:translateY(-6px) scale(1.06)}
+.fcard:active{transform:scale(.93)}
+.fcard.on:active{transform:scale(1.02)}
+.fcard:focus-visible{outline:3px solid var(--ink);outline-offset:4px}
+.fcard.ink{color:var(--ink)}
+.fcard .time{align-self:flex-start;display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:7px;background:rgba(255,255,255,.92);color:var(--ink);font-family:var(--display);font-style:italic;font-weight:800;font-size:15px;letter-spacing:.02em;text-transform:uppercase}
+.fcard .time i{width:9px;height:9px;border-radius:50%;background:var(--dot)}
+.fcard .shot{position:relative;width:132%;margin:-6% -16% -8%;aspect-ratio:1;flex:none}
+.fcard .shot img{width:100%;height:100%;object-fit:cover;-webkit-mask-image:radial-gradient(closest-side,#000 62%,transparent 98%);mask-image:radial-gradient(closest-side,#000 62%,transparent 98%);transition:transform .8s var(--spring)}
+.fcard:hover .shot img{transform:rotate(-4deg) scale(1.04)}
+.fcard .range{margin-top:auto;font-family:var(--display);font-style:italic;font-weight:700;font-size:16px;letter-spacing:.06em;text-transform:uppercase;opacity:.85}
+.fcard h3{margin:2px 0 0;font-family:var(--display);font-style:italic;font-weight:900;font-size:clamp(34px,3vw,46px);line-height:.95;text-transform:uppercase;letter-spacing:-.005em}
+.fcard p{margin:var(--s3) 0 0;font-size:16px;line-height:1.45;max-width:300px;opacity:0;transform:translateY(8px);transition:opacity .4s var(--out),transform .5s var(--out)}
+.fcard.on p{opacity:1;transform:none}
+.car-btn{position:absolute;top:50%;z-index:3;width:56px;height:56px;margin-top:-28px;border-radius:50%;border:0;background:var(--white);color:var(--ink);display:grid;place-items:center;box-shadow:0 2px 6px rgba(21,21,21,.12),0 14px 30px -12px rgba(21,21,21,.35);transition:transform .35s var(--spring)}
+.car-btn:hover{transform:scale(1.08)}
+.car-btn:active{transform:scale(.92)}
+.car-prev{left:var(--s4)}.car-next{right:var(--s4)}
+@media(min-width:768px){.car-prev{left:var(--s6)}.car-next{right:var(--s6)}}
+.dots{display:flex;justify-content:center;gap:10px;margin-top:var(--s2)}
+.dots{gap:2px}
+.dots button{position:relative;width:28px;height:28px;padding:0;border:0;border-radius:50%;background:none}
+.dots button::before{content:"";position:absolute;inset:8px;border-radius:50%;background:#cfcdc8;transition:transform .35s var(--spring)}
+.dots button:hover::before{transform:scale(1.3)}
+.dots button:active::before{transform:scale(.85)}
+.dots button[aria-current="true"]::before{background:var(--ink);transform:scale(1.15)}
+.fc-coldbrew{--bg:#925933;--sh:rgba(146,89,51,.7);--dot:#ff5a1f}
+.fc-bloodorange{--bg:#eb3c1c;--sh:rgba(235,60,28,.7);--dot:#ff5a1f}
+.fc-watermelon{--bg:#fb5a72;--sh:rgba(251,90,114,.7);--dot:#14d1bd}
+.fc-lemonlime{--bg:#8dc941;--sh:rgba(141,201,65,.75);--dot:#14d1bd}
+.fc-lavender{--bg:#a18af5;--sh:rgba(161,138,245,.75);--dot:#7650ff}
+.fc-vanilla{--bg:#e2af2f;--sh:rgba(226,175,47,.75);--dot:#7650ff}
+
+/* italic display everywhere the reference uses it */
+.nav-links,.mnav a,.hero-badge .t2,.hero-ranges,.spot-tag{font-style:italic}
+.nav-links{font-weight:800;font-size:19px;letter-spacing:.01em}
+.mnav a{font-weight:800;font-size:24px}
+.hero h1{font-style:italic;font-size:clamp(60px,6.8vw,100px);line-height:.86}
+.statement p:first-child{font-family:var(--display);font-style:italic;font-weight:900;font-size:clamp(28px,3vw,44px);line-height:1.05;text-transform:uppercase}
+
+
+/* ===== mobile polish ===== */
+.flavors .btn{box-shadow:none}
+@media(max-width:767px){
+  /* carousel arrows move below the cards, either side of the dots — nothing sits on the photos */
+  .car-track{padding-bottom:var(--s5)}
+  .car-btn{top:auto;bottom:-60px;margin:0;width:48px;height:48px;box-shadow:0 2px 6px rgba(21,21,21,.12)}
+  .dots{min-height:48px;align-items:center;margin-top:var(--s3)}
+  .flavors{padding-bottom:var(--s7)}
+  .hero-copy{padding-top:var(--s7)}
+  .hero-badge{margin-bottom:var(--s5)}
+  .sec-row > div{width:100%}
+  .sec-row .btn-wide{width:100%;min-width:0}
+}
+@media(max-width:400px){
+  .nav-inner{gap:var(--s3)}
+  .logo{width:88px}
+  .nav-right{gap:0}
+  .hero-badge{gap:var(--s3)}
+  .hero-badge .seal{width:42px;height:42px}
+  .hero-badge .t1{font-size:15px}
+  .hero-badge .t2{font-size:19px;white-space:nowrap}
+  .hero-ranges{gap:var(--s2) var(--s3);font-size:17px}
+  .hero h1{font-size:clamp(46px,14.5vw,60px)}
+}
+@media(max-width:340px){
+  .icon-btn{width:40px;height:40px}
+  .hero-badge .sep{display:none}
+  .hero-ranges{font-size:15.5px;letter-spacing:.03em}
+}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}.rv{opacity:1;transform:none}}
+</style>
+</head>
+<body>
+<div class="grain" aria-hidden="true"></div>
+
+<!-- Announcement -->
+<div class="announce" role="region" aria-label="Promotions">
+  <div class="ticker"><span class="tick">Free shipping on orders $35+ <a href="#bundles">Shop now</a><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#ffd23f" d="M12 1.5 14.6 9.4 23 12l-8.4 2.6L12 22.5l-2.6-7.9L1 12l8.4-2.6z"/></svg></span><span class="tick">Subscribe &amp; save 20% — skip or cancel anytime<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#14d1bd" d="M12 1.5 14.6 9.4 23 12l-8.4 2.6L12 22.5l-2.6-7.9L1 12l8.4-2.6z"/></svg></span><span class="tick">New: the Full Day Box — 3 ranges, 6 flavours<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#ff5a1f" d="M12 1.5 14.6 9.4 23 12l-8.4 2.6L12 22.5l-2.6-7.9L1 12l8.4-2.6z"/></svg></span><span class="tick">0 nicotine · 0 sugar · 0 crash<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#ffd23f" d="M12 1.5 14.6 9.4 23 12l-8.4 2.6L12 22.5l-2.6-7.9L1 12l8.4-2.6z"/></svg></span><span class="tick">Rated 4.9/5 by 2,400+ customers<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#14d1bd" d="M12 1.5 14.6 9.4 23 12l-8.4 2.6L12 22.5l-2.6-7.9L1 12l8.4-2.6z"/></svg></span><span class="tick">Feel it in about 5 minutes<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#ff5a1f" d="M12 1.5 14.6 9.4 23 12l-8.4 2.6L12 22.5l-2.6-7.9L1 12l8.4-2.6z"/></svg></span></div>
+  <div class="ticker" aria-hidden="true"><span class="tick">Free shipping on orders $35+ <a href="#bundles" tabindex="-1">Shop now</a><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#ffd23f" d="M12 1.5 14.6 9.4 23 12l-8.4 2.6L12 22.5l-2.6-7.9L1 12l8.4-2.6z"/></svg></span><span class="tick">Subscribe &amp; save 20% — skip or cancel anytime<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#14d1bd" d="M12 1.5 14.6 9.4 23 12l-8.4 2.6L12 22.5l-2.6-7.9L1 12l8.4-2.6z"/></svg></span><span class="tick">New: the Full Day Box — 3 ranges, 6 flavours<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#ff5a1f" d="M12 1.5 14.6 9.4 23 12l-8.4 2.6L12 22.5l-2.6-7.9L1 12l8.4-2.6z"/></svg></span><span class="tick">0 nicotine · 0 sugar · 0 crash<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#ffd23f" d="M12 1.5 14.6 9.4 23 12l-8.4 2.6L12 22.5l-2.6-7.9L1 12l8.4-2.6z"/></svg></span><span class="tick">Rated 4.9/5 by 2,400+ customers<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#14d1bd" d="M12 1.5 14.6 9.4 23 12l-8.4 2.6L12 22.5l-2.6-7.9L1 12l8.4-2.6z"/></svg></span><span class="tick">Feel it in about 5 minutes<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#ff5a1f" d="M12 1.5 14.6 9.4 23 12l-8.4 2.6L12 22.5l-2.6-7.9L1 12l8.4-2.6z"/></svg></span></div>
+</div>
+
+<!-- Nav -->
+<header class="nav" id="nav">
+  <div class="wrap nav-inner">
+    <a href="#top" class="logo" aria-label="SohoPouch home"><img src="brand_assets/logo-dark.svg" alt="SohoPouch"></a>
+    <nav class="nav-links" aria-label="Primary">
+      <div class="nav-drop">
+        <button type="button" aria-haspopup="true">Shop
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
+        <div class="drop" role="menu">
+          <a href="products/caffeine.html" role="menuitem"><i class="bg-[#ff5a1f]"></i>Caffeine<small>Morning focus</small></a>
+          <a href="products/electrolyte.html" role="menuitem"><i class="bg-[#14d1bd]"></i>Electrolyte<small>Training</small></a>
+          <a href="products/sleep.html" role="menuitem"><i class="bg-[#7650ff]"></i>Sleep<small>Wind down</small></a>
+          <a href="#bundles" role="menuitem"><i class="bg-[#ffd23f]"></i>Full Day Box<small>Save 20%</small></a>
+        </div>
+      </div>
+      <a href="#builder">Build your own</a>
+      <a href="#subscribe">Subscribe &amp; save</a>
+      <a href="#reviews">Reviews</a>
+      <a href="#faq">FAQ</a>
+    </nav>
+    <div class="nav-right">
+      <a href="#join" class="icon-btn" aria-label="Account"><svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg></a>
+      <button type="button" class="icon-btn" id="searchBtn" aria-label="Search" aria-expanded="false" aria-controls="searchBar"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m20 20-4.6-4.6"/></svg></button>
+      <button type="button" class="icon-btn" aria-label="Cart" id="cartBtn"><svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8h14l-1.2 12H6.2L5 8Z"/><path d="M9 8V7a3 3 0 0 1 6 0v1"/></svg><span class="cart-count" id="cartCount">0</span></button>
+      <button type="button" class="icon-btn menu-btn" id="menuBtn" aria-label="Menu" aria-expanded="false" aria-controls="mnav"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+    </div>
+  </div>
+  <div class="search-bar" id="searchBar">
+    <div class="wrap">
+      <form id="navSearch" role="search">
+        <label for="q" class="sr-only">Search</label>
+        <input id="q" class="field" type="search" placeholder="Search caffeine, sleep, bundles…" autocomplete="off">
+        <button class="btn" type="submit">Search</button>
+      </form>
+    </div>
+  </div>
+  <nav class="mnav" id="mnav" aria-label="Mobile">
+    <a href="#moments">Shop by moment</a><a href="#builder">Build your own</a><a href="#subscribe">Subscribe &amp; save</a><a href="#reviews">Reviews</a><a href="#faq">FAQ</a>
+  </nav>
+</header>
+
+<main id="top">
+<!-- Hero -->
+<section class="hero" id="hero">
+  <div class="hero-tone" aria-hidden="true"></div>
+  <div class="hero-ov" aria-hidden="true"></div>
+  <div class="wrap">
+    <div class="hero-inner">
+      <div class="hero-copy">
+        <div class="hero-badge">
+          <svg class="seal" viewBox="0 0 52 52" fill="none" stroke="#fff" aria-hidden="true"><circle cx="26" cy="26" r="23" stroke-width="2.5"/><circle cx="26" cy="26" r="17" stroke-width="1.5" stroke-dasharray="3 3"/><path d="m26 16 3 6.3 6.9.9-5 4.8 1.2 6.8L26 31.6l-6.1 3.2 1.2-6.8-5-4.8 6.9-.9z" fill="#fff" stroke="none"/></svg>
+          <span class="t1">Rated 4.9 / 5<small>by 2,400+ customers</small></span>
+          <span class="sep" aria-hidden="true"></span>
+          <span class="t2">New drop</span>
+        </div>
+        <h1 aria-label="One pouch. Zero sugar. Zero crash.">
+          <span class="ln"><span>One pouch.</span></span>
+          <span class="ln"><span>Zero sugar.</span></span>
+          <span class="ln"><span>Zero crash.</span></span>
+        </h1>
+        <p class="hero-sub">Try for yourself today</p>
+        <div class="hero-cta">
+          <a href="#bundles" class="btn">Shop now</a>
+          <nav class="hero-ranges" aria-label="Shop by range">
+            <a href="products/caffeine.html"><i class="bg-[#ff5a1f]"></i><span>Caffeine</span></a>
+            <a href="products/electrolyte.html"><i class="bg-[#14d1bd]"></i><span>Electrolyte</span></a>
+            <a href="products/sleep.html"><i class="bg-[#7650ff]"></i><span>Sleep</span></a>
+          </nav>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="hero-art">
+    <div class="frame">
+      <div class="hero-par" id="heroPar">
+        <img src="images/hero-tropic-1920.jpg" srcset="images/hero-tropic-1280.jpg 1280w, images/hero-tropic-1920.jpg 1920w, images/hero-tropic-3200.jpg 3200w" sizes="(min-width:960px) 100vw, 175vw" alt="SohoPouch Caffeine, Electrolyte and Sleep tins stacked with blood orange, watermelon cubes, lime, mint and lavender with juice splashes on a wet rock at a tropical beach at sunset, palm trees and a pink-orange sky" width="5504" height="3072" fetchpriority="high">
+        <a class="spot" data-k="caf" href="products/caffeine.html" aria-label="Shop Caffeine pouches"><span class="spot-dot" aria-hidden="true"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span><span class="spot-tag"><b>Caffeine</b><i><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></i></span></a>
+        <a class="spot" data-k="ele" href="products/electrolyte.html" aria-label="Shop Electrolyte pouches"><span class="spot-dot" aria-hidden="true"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span><span class="spot-tag"><b>Electrolyte</b><i><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></i></span></a>
+        <a class="spot" data-k="slp" href="products/sleep.html" aria-label="Shop Sleep pouches"><span class="spot-dot" aria-hidden="true"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span><span class="spot-tag"><b>Sleep</b><i><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></i></span></a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Statement -->
+<div class="statement">
+  <p>Caffeine to rise. Electrolytes to move. Sleep to drift.</p>
+  <p>Three ranges, six flavours, zero nicotine — one tiny pouch at a time.</p>
+</div>
+
+<!-- Social proof -->
+<section class="proof" aria-label="Social proof">
+  <div class="wrap">
+    <div class="sec-row">
+      <div>
+        <h2 class="sec-title rv">Loved by 2,400+ customers</h2>
+        <p class="sec-sub rv" data-d="1">Three ranges, six flavours — and more on the way. Have you found your favourite yet?</p>
+      </div>
+      <a href="products/caffeine.html" class="btn btn-wide rv" data-d="2">Shop all flavours</a>
+    </div>
+    <div class="proof-grid">
+      <div class="stat rv"><span class="stat-tag"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#ff5a1f" d="m12 2 3 6.6 7.2.8-5.4 4.9 1.5 7.1L12 17.8l-6.3 3.6 1.5-7.1L1.8 9.4 9 8.6z"/></svg>5-star rated</span><div class="stat-num"><span data-count="4.9" data-dec="1">0</span>/5</div><div class="stat-label">from 2,400+ reviews</div></div>
+      <div class="stat rv" data-d="1"><span class="stat-tag"><svg viewBox="0 0 24 24" fill="none" stroke="#0fb3a1" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.6 3.4-5.5 6.5-5.5s5.7 1.9 6.5 5.5M16 4.8a3.5 3.5 0 0 1 0 6.5M18.5 14.8c1.6.7 2.6 2.4 3 5.2"/></svg>Community</span><div class="stat-num"><span data-count="1.2" data-dec="1">0</span>M+</div><div class="stat-label">pouches popped since launch</div></div>
+      <div class="stat rv" data-d="2"><span class="stat-tag"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#7650ff" d="M13.5 2 4 13.5h6.5L9.5 22 20 9.5h-6.6z"/></svg>Fast-acting</span><div class="stat-num">~<span data-count="5">0</span> min</div><div class="stat-label">average time to feel it</div></div>
+      <div class="stat rv" data-d="3"><span class="stat-tag"><svg viewBox="0 0 24 24" fill="none" stroke="#f0a81a" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20C4 10 10 4 20 4c0 10-6 16-16 16Z"/><path d="M4 20 13 11"/></svg>Clean formula</span><div class="stat-num"><span data-count="0">0</span>g</div><div class="stat-label">sugar, nicotine &amp; calories</div></div>
+    </div>
+  </div>
+  <div class="press" aria-label="As featured in (placeholder logos)">
+    <div class="press-track">
+      <span class="press-logo">Press logo 01</span><span class="press-logo">Press logo 02</span><span class="press-logo">Retailer 03</span><span class="press-logo">Podcast 04</span><span class="press-logo">Press logo 05</span><span class="press-logo">Retailer 06</span>
+    </div>
+    <div class="press-track" aria-hidden="true">
+      <span class="press-logo">Press logo 01</span><span class="press-logo">Press logo 02</span><span class="press-logo">Retailer 03</span><span class="press-logo">Podcast 04</span><span class="press-logo">Press logo 05</span><span class="press-logo">Retailer 06</span>
+    </div>
+  </div>
+</section>
+<!-- Block 4: Pick your moment (flavour carousel) -->
+<section class="flavors" id="moments" aria-label="Pick your moment">
+  <div class="wrap">
+    <div class="sec-row">
+      <div>
+        <h2 class="sec-title rv">Pick your moment</h2>
+        <p class="sec-sub rv" data-d="1">Six flavours for three moments of your day. Have you found your favourite yet?</p>
+      </div>
+      <a href="products/caffeine.html" class="btn btn-wide rv" data-d="2">Shop all flavours</a>
+    </div>
+  </div>
+  <div class="car">
+    <button type="button" class="car-btn car-prev" id="carPrev" aria-label="Previous flavour"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m15 6-6 6 6 6"/></svg></button>
+    <div class="car-track" id="carTrack">
+      <a class="fcard fc-coldbrew" href="products/caffeine.html"><span class="time"><i></i>7:00 AM · Rise</span><span class="shot"><img src="images/f-coldbrew.jpg" alt="Cold Brew Mint Caffeine pouch tins with coffee beans and mint" loading="lazy"></span><span class="range">Caffeine</span><h3>Cold Brew Mint</h3><p>Iced-latte smooth with a cool mint finish. 100mg natural caffeine + L-theanine.</p></a>
+      <a class="fcard fc-bloodorange" href="products/caffeine.html"><span class="time"><i></i>9:00 AM · Focus</span><span class="shot"><img src="images/f-bloodorange.jpg" alt="Blood Orange Caffeine pouch tins with a halved blood orange" loading="lazy"></span><span class="range">Caffeine</span><h3>Blood Orange</h3><p>Bright, tangy citrus for jitter-free focus through your deep-work block.</p></a>
+      <a class="fcard fc-watermelon" href="products/electrolyte.html"><span class="time"><i></i>5:30 PM · Move</span><span class="shot"><img src="images/f-watermelon.jpg" alt="Watermelon Sea Salt Electrolyte pouch tins with watermelon cubes" loading="lazy"></span><span class="range">Electrolyte</span><h3>Watermelon Sea Salt</h3><p>Juicy watermelon with a pinch of sea salt. Sodium, potassium &amp; magnesium.</p></a>
+      <a class="fcard fc-lemonlime" href="products/electrolyte.html"><span class="time"><i></i>6:30 PM · Recover</span><span class="shot"><img src="images/f-lemonlime.jpg" alt="Lemon Lime Electrolyte pouch tins with lime and lemon" loading="lazy"></span><span class="range">Electrolyte</span><h3>Lemon Lime</h3><p>Zesty and clean: the post-workout reset without a sloshing sports drink.</p></a>
+      <a class="fcard fc-lavender" href="products/sleep.html"><span class="time"><i></i>10:00 PM · Drift</span><span class="shot"><img src="images/f-lavender.jpg" alt="Lavender Berry Sleep pouch tins with lavender and blueberries" loading="lazy"></span><span class="range">Sleep</span><h3>Lavender Berry</h3><p>Soft berry and calming lavender. Magnesium, L-theanine &amp; chamomile.</p></a>
+      <a class="fcard fc-vanilla" href="products/sleep.html"><span class="time"><i></i>11:00 PM · Rest</span><span class="shot"><img src="images/f-vanilla.jpg" alt="Vanilla Chamomile Sleep pouch tins with vanilla pods and chamomile" loading="lazy"></span><span class="range">Sleep</span><h3>Vanilla Chamomile</h3><p>Warm vanilla and honeyed chamomile to quiet a busy head. Melatonin-free.</p></a>
+    </div>
+    <button type="button" class="car-btn car-next" id="carNext" aria-label="Next flavour"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></button>
+  </div>
+  <div class="dots" id="carDots" aria-label="Choose flavour"></div>
+</section>
+</main>
+
+<script>
+(() => {
+  const $ = (s, r = document) => r.querySelector(s);
+  const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // reveal
+  const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }), { threshold: .12, rootMargin: '0px 0px -40px 0px' });
+  $$('.rv').forEach(el => io.observe(el));
+
+  // count up
+  const cio = new IntersectionObserver(es => es.forEach(e => {
+    if (!e.isIntersecting) return; cio.unobserve(e.target);
+    const el = e.target, to = parseFloat(el.dataset.count), dec = +(el.dataset.dec || 0), t0 = performance.now(), dur = 1600;
+    const tick = t => { const p = Math.min(1, (t - t0) / dur), v = to * (1 - Math.pow(1 - p, 4)); el.textContent = v.toFixed(dec); if (p < 1) requestAnimationFrame(tick); };
+    reduce ? (el.textContent = to.toFixed(dec)) : requestAnimationFrame(tick);
+  }), { threshold: .5 });
+  $$('[data-count]').forEach(el => cio.observe(el));
+
+  // nav state
+  const nav = $('#nav');
+  const onScroll = () => nav.classList.toggle('scrolled', scrollY > 60);
+  addEventListener('scroll', onScroll, { passive: true }); onScroll();
+
+  // flavour carousel: centre card = active, arrows, dots
+  const track = $('#carTrack'), cards = $$('.fcard', track), dots = $('#carDots');
+  dots.innerHTML = cards.map(c => `<button type="button" aria-label="Show ${c.querySelector('h3').textContent}"></button>`).join('');
+  const dotBtns = $$('button', dots);
+  const centerOf = c => c.offsetLeft - (track.clientWidth - c.offsetWidth) / 2;
+  let cur = -1;
+  const go = i => { const c = cards[Math.max(0, Math.min(cards.length - 1, i))]; track.scrollTo({ left: centerOf(c), behavior: reduce ? 'auto' : 'smooth' }); };
+  const mark = () => {
+    const mid = track.scrollLeft + track.clientWidth / 2;
+    let best = 0, bd = Infinity;
+    cards.forEach((c, i) => { const d = Math.abs(c.offsetLeft + c.offsetWidth / 2 - mid); if (d < bd) { bd = d; best = i; } });
+    if (best === cur) return; cur = best;
+    cards.forEach((c, i) => c.classList.toggle('on', i === best));
+    dotBtns.forEach((d, i) => d.setAttribute('aria-current', i === best));
+  };
+  let raf; track.addEventListener('scroll', () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(mark); }, { passive: true });
+  dotBtns.forEach((d, i) => d.addEventListener('click', () => go(i)));
+  $('#carPrev').addEventListener('click', () => go(cur - 1));
+  $('#carNext').addEventListener('click', () => go(cur + 1));
+  addEventListener('resize', () => { track.scrollLeft = centerOf(cards[Math.max(cur, 0)]); });
+  requestAnimationFrame(() => { track.scrollLeft = centerOf(cards[2]); mark(); });
+
+  // search + mobile menu
+  const toggle = (btn, panel) => btn.addEventListener('click', () => { const open = panel.classList.toggle('open'); btn.setAttribute('aria-expanded', open); if (open && panel.id === 'searchBar') $('#q').focus(); });
+  toggle($('#searchBtn'), $('#searchBar')); toggle($('#menuBtn'), $('#mnav'));
+  $$('#mnav a').forEach(a => a.addEventListener('click', () => { $('#mnav').classList.remove('open'); $('#menuBtn').setAttribute('aria-expanded', false); }));
+  $('#navSearch').addEventListener('submit', e => { e.preventDefault(); const q = $('#q').value.trim().toLowerCase();
+    const map = { caf: 'products/caffeine.html', coffee: 'products/caffeine.html', energy: 'products/caffeine.html', ele: 'products/electrolyte.html', hydra: 'products/electrolyte.html', sleep: 'products/sleep.html', night: 'products/sleep.html', box: 'products/caffeine.html', bundle: 'products/caffeine.html' };
+    const hit = Object.keys(map).find(k => q.includes(k)); $('#searchBar').classList.remove('open'); location.href = hit ? map[hit] : 'products/caffeine.html'; });
+
+})();
+</script>
+</body>
+</html>
