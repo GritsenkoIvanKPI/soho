@@ -278,6 +278,12 @@ button{font:inherit;color:inherit;cursor:pointer}
   .hero-badge{margin-bottom:var(--s5)}
   .sec-row > div{width:100%}
   .sec-row .btn-wide{width:100%;min-width:0}
+  /* hero: full-width CTA on the grid; tins sit above the shade/tint so they stay vivid */
+  .hero-cta{display:grid;grid-template-columns:1fr;gap:var(--s5)}
+  .hero-cta .btn{width:100%;padding:0}
+  .hero-art{z-index:2}
+  .hero-tone{display:none}
+  .hero-ov{background:linear-gradient(180deg,rgba(60,10,35,.4),rgba(60,10,35,.18) 55%,transparent 75%)}
 }
 @media(max-width:400px){
   .nav-inner{gap:var(--s3)}
